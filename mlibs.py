@@ -149,7 +149,7 @@ def reload_upgrade_level():
 #scheduler.start()
 def close():
     global bal, upgradeprice, balper, upgrades, nextupprice
-    a = open (('data.json'), "w")
+    a = open (resource_path('data.json'), "w")
     a.truncate
     a.write(
         '{\n'
@@ -178,7 +178,7 @@ balstart = Label( win, text="Money: ${}".format(bal), bg="#0D1117", fg="white").
 
 addmoney = Button(win,text="Add Money", command=addbal, bg="#0D1117", fg="white").grid(column=2, row=0)
 
-reset = Button(win,text="Reset", command=restart, bg="#0D1117", fg="white").grid(column=2, row=0)
+reset = Button(win,text="Reset", command=restart, bg="#0D1117", fg="white").grid(column=5, row=0)
 
 
 
