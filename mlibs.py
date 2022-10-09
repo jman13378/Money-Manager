@@ -57,6 +57,17 @@ f = open(path, 'r')
 data = json.loads(f.read())
 
 
+soundtype=1
+
+if soundtype==0:
+    completesound = resource_path('complete.mp3')
+    errorsound = resource_path('error.mp3')
+    imageIcon = Image.open(resource_path('favicon.ico'))
+elif soundtype==1:
+    completesound = 'complete.mp3'
+    errorsound = 'error.mp3'
+    imageIcon = Image.open('favicon.ico')
+
 
 win=Tk()
 win.geometry("350x350")
@@ -64,8 +75,7 @@ win.grid()
 win.config(bg="#2C2F33")
 win.title("Money Manager")
 
-imageIcon = Image.open(resource_path('favicon.ico'))
-
+lel11= 0
 bal = data["bal"]
 upgradeprice=data["upgradeprice"]
 upgrades=data["upgrades"]
@@ -77,7 +87,15 @@ prestige=data['prestige']
 photo = ImageTk.PhotoImage(imageIcon)
 win.iconphoto(False, photo)
 
-
+def send_stat_msg():
+    showinfo("Stats!",
+     'Prestige: {}\n'.format(prestige)
+    +'Level: {}\n'.format(upgrades)
+    +'MPC: {}\n'.format(balper)
+    +'Balance: {}\n'.format(bal)
+    +'Next Upgrade Price: {}\n'.format(nextupprice)
+    +'Current Upgrade Price: {}'.format(upgradeprice)
+    )
 def addbal():
     global bal
     bal += balper
@@ -105,48 +123,49 @@ def ending():
         close()
         pass
 
-
+def getPrestige():
+    global prestige
+    if prestige == 0:
+        return 1
+    else:
+        return prestige
 
 def upgrade():
-    global bal, upgradeprice, balper, upgrades, nextupprice,prestige
+    global bal, upgradeprice, balper, upgrades, nextupprice, prestige,lel11
     if bal >= upgradeprice:
         upgrades += 1
         bal -= upgradeprice
-        balper += 1 + prestige
+        balper += (1 + getPrestige())
         cost = upgradeprice
-        upgradeprice += nextupprice
-        if upgrades == 3:
-            nextupprice = 100*prestige
-        elif upgrades == 6:
-            nextupprice = 150*prestige
-        elif upgrades == 9:
-            nextupprice = 200*prestige
-        elif upgrades == 13:
-            nextupprice = 300*prestige
-        elif upgrades == 15:
-            nextupprice = 450*prestige
-        elif upgrades == 18:
-            nextupprice = 600*prestige
-        elif (upgrades == (20 + (10 * prestige))):
+        nextupprice =upgradeprice
+        if upgrades >= (20 + (10 * getPrestige())):
+            prestigeup()
+        elif (upgrades == (20 + (10 * getPrestige()))):
+            lel11 = 1
             ending()
-
+            return
+        elif lel11 != 1:
+            upgradeprice += upgradeprice+50*getPrestige()
+        
         reload_bal()
         reload_upgrades()
         reload_upgrade_level()
-        playsound(resource_path('complete.mp3'))
-        showinfo("Upgraded!", "You have upgraded your MPS(Money per second)\nUpgrade: {}\nCost: {}\nRemaining Bal: {}\nNext Cost: {}".format(upgrades, cost, bal, upgradeprice) )
+        playsound(completesound)
+        showinfo("Upgraded!", "You have upgraded your MPC(Money per click)\nUpgrade: {}\nCost: {}\nRemaining Bal: {}\nNext Cost: {}".format(upgrades, cost, bal, upgradeprice) )
 
     else:
-        playsound(resource_path('error.mp3'))
+        s = playsound(errorsound)
         showinfo('Not Enought Money!', "Sorry, you doen't have enough money for this!\nCurrent Bal: {}\nNeeded: {}".format(bal, upgradeprice))
         
 def prestigeup():
+    global bal, upgradeprice, balper, upgrades, nextupprice, prestige,lel11
     prestige += 1
     bal=0
     upgradeprice=150
     upgrades=0
     balper= 1+prestige
     nextupprice=50
+    close()
 
 def reload_bal():
     global bal
@@ -155,7 +174,6 @@ def reload_bal():
 def reload_upgrades():
     global upgradeprice
     upgr = Label( win, text="Upgrade Price: ${}".format(upgradeprice), bg="#0D1117", fg="white").grid(column=1,row=1)
-
 
 def reload_upgrade_level():
     global upgrades
@@ -199,6 +217,8 @@ reload_bal()
 reload_upgrades()
 reload_upgrade_level()
 upgr = Button(win,text="Upgrade", command=upgrade, bg="#0D1117", fg="white").grid(column=3, row=1)
+
+stats = Button(win,text="Stats", command=send_stat_msg, bg="#0D1117", fg="white").grid(column=1, row=5)
 
 addmoney = Button(win,text="Add Money", command=addbal, bg="#0D1117", fg="white").grid(column=2, row=0)
 
