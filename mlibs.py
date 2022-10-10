@@ -73,6 +73,11 @@ win.grid()
 win.config(bg="#2C2F33")
 win.title("Money Manager")
 
+row = [1,1,1,1,1]
+for i in row:
+    win.rowconfigure(i, weight=i)
+
+
 lel11= 0
 bal = data["bal"]
 upgrades=data["upgrades"]
@@ -97,6 +102,9 @@ def addbal():
     bal += balper
     reload_bal()
     reload_upgrades()
+    c = Label(win, text="+ ${}".format(balper), bg="#2C2F33", fg="green")
+    c.grid(column=3,row=5)
+    win.after(2000, lambda: c.destroy())
     print(bal)
 
 def ending():
@@ -128,10 +136,11 @@ def getPrestige():
 def upgrade():
     global bal, balper, upgrades, prestige
     if bal >= upgrades * 100 + 50 * getPrestige():
+        cost = upgrades * 100 + 50 * getPrestige()
         bal -= upgrades * 100 + 50 * getPrestige()
         upgrades += 1
         balper += (1 + getPrestige())
-        cost = upgrades * 100 + 50 * getPrestige()
+        
         
         if upgrades >= (20 + (10 * getPrestige())):
             prestigeup()
@@ -160,14 +169,14 @@ def prestigeup():
 
 def reload_bal():
     global bal
-    balance = Label( win, text="Money: ${}".format(bal), bg="#0D1117", fg="green").grid(column=1,row=0)
+    balance = Label( win, text="Money: ${}".format(bal), bg="#0D1117", fg="green").grid(column=0,row=0)
 
 def reload_upgrades():
-    upgr = Label( win, text="Upgrade Price: ${}".format(upgrades * 100 + 50 * getPrestige()), bg="#0D1117", fg="white").grid(column=1,row=1)
+    upgr = Label( win, text="Upgrade Price: ${}".format(upgrades * 100 + 50 * getPrestige()), bg="#0D1117", fg="white").grid(column=0,row=2)
 
 def reload_upgrade_level():
     global upgrades
-    upgrlstart = Label( win, text="Level: {}".format(upgrades), bg="#0D1117", fg="white").grid(column=2,row=1)
+    upgrlstart = Label( win, text="Level: {}".format(upgrades), bg="#0D1117", fg="white").grid(column=0,row=3)
 
 
 #scheduler = BackgroundScheduler()
@@ -202,13 +211,14 @@ def restart():
 reload_bal()
 reload_upgrades()
 reload_upgrade_level()
-upgr = Button(win,text="Upgrade", command=upgrade, bg="#0D1117", fg="green").grid(column=3, row=1)
 
-stats = Button(win,text="Stats", command=send_stat_msg, bg="#0D1117", fg="white").grid(column=1, row=5)
+upgr = Button(win,text="  Upgrade  ", command=upgrade, bg="#0D1117", fg="green").grid(column=1, row=3)
+win.rowconfigure(5, weight=2)
+stats = Button(win,text="  Stats?  ", command=send_stat_msg, bg="#0D1117", fg="yellow").grid(column=0, row=5)
 
-addmoney = Button(win,text="Add Money", command=addbal, bg="#0D1117", fg="blue").grid(column=2, row=0)
+addmoney = Button(win,text="  Add Money  ", command=addbal, bg="#0D1117", fg="blue").grid(column=1, row=0)
 
-reset = Button(win,text="Reset", command=restart, bg="#0D1117", fg="red").grid(column=5, row=0)
+reset = Button(win,text="  Reset  ", command=restart, bg="#0D1117", fg="red").grid(column=5, row=0)
 
 
 
