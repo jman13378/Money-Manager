@@ -12,9 +12,10 @@ from playsound import playsound
 from os.path import exists
 import sys, os
 
-from pathlib import Path
+import generators
 
 import os
+
 parent_dir = os.getenv('APPDATA')
 directory = "Money-Manager"
 file = "data.json"
@@ -29,6 +30,10 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
+
+#generators.generator.regvars()
+#generators.generator.get_dir()
 
 
 dir_exists = os.path.exists(path)
@@ -73,10 +78,10 @@ win.grid()
 win.config(bg="#2C2F33")
 win.title("Money Manager")
 
-row = [1,1,1,1,1]
-for i in row:
-    win.rowconfigure(i, weight=i)
-
+win.rowconfigure(5, weight=1)
+win.rowconfigure(5, weight=10)
+win.columnconfigure(5, weight=1)
+win.columnconfigure(5, weight=10)
 
 lel11= 0
 bal = data["bal"]
@@ -196,6 +201,7 @@ def close():
         +'  "prestige": {}'.format(prestige)
         +'\n}')
     a.close()
+   # generators.generator.close()
     win.destroy()
 
 def restart():
