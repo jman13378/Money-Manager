@@ -124,6 +124,7 @@ def ending():
     elif ans == CANCEL:
         ans1 = askyesno("restarting!", "Are you sure you want to restart?")
         close()
+        
         pass
 
 def getPrestige():
