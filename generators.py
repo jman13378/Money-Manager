@@ -23,9 +23,9 @@ class generator():
         if not dir_exists:
             os.mkdir(path)
 
-        pth = os.path.join(path,file)
+        path = os.path.join(path,file)
 
-        if not os.path.exists(pth):
+        if not os.path.exists(path):
             with open(path, 'x') as a:
                 a.write(
                     '{\n'
@@ -40,7 +40,7 @@ class generator():
                     +'\n}')
                 print(a.read)
                 a.close()
-        f= open(pth, 'r') 
+        f= open(path, 'r') 
         rip = json.loads(f.read())
         generators = rip["generators"][0]
         f.close()
@@ -49,6 +49,7 @@ class generator():
     def getGeneratorInterval(genid):
         ri = generators["{}".format(genid)]["interval"]
         rit = generators["{}".format(genid)]["intervalType"]
+        print(rit + "  " + ri)
         if "tf" in str(rit): # mi
             return ri * 60
         elif "hj" in str(rit): # se
@@ -63,32 +64,14 @@ class generator():
     def getGeneratorBalper(genid):
         return generators["{}".format(genid)]["balper"]
 
-    def getGenerators():
-        i=1
-        for x in generators:
-            
-            print(i)
-            genname=generator.getGeneratorName(i)
-            time=generator.getGeneratorInterval(i)
-            baltoadd= generator.getGeneratorBalper(i)
-            if baltoadd:
-                generator.registerGenerators(genname,time,baltoadd)
-                print("generator error due to incorrect type formatting")
-            i+=1
-            
 
-    def registerGenerators(genname,time,baltoadd):
-        import mlibs
-
-        mlibs.start_gen_jobs(genname,time,baltoadd)
     def close():
         
-        pth = os.path.join(path,file)
-        a = open(pth, "w")
+        a = open(path, "w")
         sda = str(generators).replace("'","\"")
         a.write(
             '{\n'
-            +'  "generators": [%'.format()
+            +'  "generators": [{}'.format(sda)
             +']\n}')
         a.close()
         pass

@@ -201,7 +201,7 @@ def close():
         +'  "prestige": {}'.format(prestige)
         +'\n}')
     a.close()
-    #generators.generator.close()
+    generators.generator.close()
     win.destroy()
 
 def restart():
@@ -230,15 +230,25 @@ reset = Button(win,text="  Reset  ", command=restart, bg="#0D1117", fg="red").gr
 
 
 win.protocol('WM_DELETE_WINDOW', close)
-
+def getGenerators():
+    i=1
+    for x in generators.generators:
+        
+        print(i)
+        genname=generators.generator.getGeneratorName(i)
+        time=generators.generator.getGeneratorInterval(i)
+        baltoadd1= generators.generator.getGeneratorBalper(i)
+        if baltoadd1:
+            scheduler = BackgroundScheduler()
+            scheduler.add_job(id=genname, trigger=lambda: genAddBal(baltoadd1), next_run_time='interval', seconds=time)
+            scheduler.start()
+            print("generator error due to incorrect type formatting")
+        i+=1
+    
 
 def genAddBal(baltoadd):
+    global bal
     bal += baltoadd
     return
 
-def start_gen_jobs(genname,time,baltoadd):
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(id=genname, trigger=lambda: genAddBal(baltoadd), next_run_time='interval', seconds=time)
-    scheduler.start()
-generators.generator.getGenerators()
 win.mainloop()
