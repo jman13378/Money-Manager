@@ -1,4 +1,6 @@
 
+
+import logging
 import os
 import json
 from PIL import Image, ImageTk
@@ -22,48 +24,72 @@ class generator():
             os.mkdir(path)
 
         pth = os.path.join(path,file)
-        print(os.path.exists(pth))
 
         if not os.path.exists(pth):
             with open(path, 'x') as a:
                 a.write(
                     '{\n'
                     +'  "generators": [{\n'
-                    +'      "1": [{\n'
+                    +'      "1": {\n'
                     +'          "name": "starter",\n'
                     +'          "balper": 50,\n'
-                    +'          "interval": "1mi"\n'
-                    +'      }]\n'
+                    +'          "interval": "1",\n'
+                    +'          "intervalType": "mi"\n'
+                    +'      }\n'
                     +'  }]'
                     +'\n}')
                 print(a.read)
                 a.close()
         f= open(pth, 'r') 
         rip = json.loads(f.read())
-        generators = rip["generators"]
+        generators = rip["generators"][0]
         f.close()
-        print(generators)
+        print(str(generators) + "1")
 
-    def getGeneratorInterval():
-        global path
-        if not os.path.exists(path):
-            import mlibs
-            mlibs.close()
-        pass
-    def getGeneratorName():
-        pass
-    def getGeneratorBalper():
-        return
+    def getGeneratorInterval(genid):
+        ri = generators["{}".format(genid)]["interval"]
+        rit = generators["{}".format(genid)]["intervalType"]
+        if "tf" in str(rit): # mi
+            return ri * 60
+        elif "hj" in str(rit): # se
+            return ri
+        elif "lk" in str(rit): # hr
+            return ri * 3600
+        else:
+            return False
+    def getGeneratorName(genid):
+        return generators["{}".format(genid)]["name"]
+
+    def getGeneratorBalper(genid):
+        return generators["{}".format(genid)]["balper"]
+
     def getGenerators():
+        i=1
+        for x in generators:
+            
+            print(i)
+            genname=generator.getGeneratorName(i)
+            time=generator.getGeneratorInterval(i)
+            baltoadd= generator.getGeneratorBalper(i)
+            if baltoadd:
+                generator.registerGenerators(genname,time,baltoadd)
+                print("generator error due to incorrect type formatting")
+            i+=1
+            
 
-        pass
+    def registerGenerators(genname,time,baltoadd):
+        import mlibs
+
+        mlibs.start_gen_jobs(genname,time,baltoadd)
     def close():
         
         pth = os.path.join(path,file)
         a = open(pth, "w")
+        sda = str(generators).replace("'","\"")
         a.write(
             '{\n'
-            +'  "generators": {\n'+'{}'.format(generators)
-            +'}\n}')
+            +'  "generators": [%'.format()
+            +']\n}')
         a.close()
         pass
+    

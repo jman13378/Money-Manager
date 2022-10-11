@@ -14,13 +14,14 @@ import sys, os
 
 import generators
 
+from apscheduler.schedulers.background import BackgroundScheduler
+
 import os
 
 parent_dir = os.getenv('APPDATA')
 directory = "Money-Manager"
 file = "data.json"
 path = os.path.join(parent_dir,directory)
-print(path)
 def resource_path(relative_path):
     """ Get the absolute path to the resource, works for dev and for PyInstaller """
     try:
@@ -32,8 +33,9 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-#generators.generator.regvars()
-#generators.generator.get_dir()
+generators.generator.regvars()
+generators.generator.get_dir()
+
 
 
 dir_exists = os.path.exists(path)
@@ -41,7 +43,6 @@ if not dir_exists:
     os.mkdir(path)
 
 path = os.path.join(path,file)
-print(os.path.exists(path))
 
 if not os.path.exists(path):
     with open(path, 'x') as a:
@@ -110,7 +111,6 @@ def addbal():
     c = Label(win, text="+ ${}".format(balper), bg="#2C2F33", fg="green")
     c.grid(column=3,row=5)
     win.after(2000, lambda: c.destroy())
-    print(bal)
 
 def ending():
     ans = askyesnocancel("Ending!", "You have Reached the end of the game"
@@ -201,7 +201,7 @@ def close():
         +'  "prestige": {}'.format(prestige)
         +'\n}')
     a.close()
-   # generators.generator.close()
+    #generators.generator.close()
     win.destroy()
 
 def restart():
@@ -231,4 +231,14 @@ reset = Button(win,text="  Reset  ", command=restart, bg="#0D1117", fg="red").gr
 
 win.protocol('WM_DELETE_WINDOW', close)
 
+
+def genAddBal(baltoadd):
+    bal += baltoadd
+    return
+
+def start_gen_jobs(genname,time,baltoadd):
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(id=genname, trigger=lambda: genAddBal(baltoadd), next_run_time='interval', seconds=time)
+    scheduler.start()
+generators.generator.getGenerators()
 win.mainloop()

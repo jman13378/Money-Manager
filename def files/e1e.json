@@ -1,0 +1,16 @@
+{
+	"generators": [{
+		"1": {
+			"name": "starter1",
+			"balper": 50,
+			"interval": 10,
+			"intervalType": "hj"
+		},
+		"2": {
+			"name": "starter2",
+			"balper": 50,
+			"interval": 10,
+			"intervalType": "hj"
+		}
+}]
+}
