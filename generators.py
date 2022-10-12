@@ -49,7 +49,7 @@ class generator():
     def getGeneratorInterval(genid):
         ri = generators["{}".format(genid)]["interval"]
         rit = generators["{}".format(genid)]["intervalType"]
-        print(rit + "  " + ri)
+        print(str(rit) + "  " + str(ri))
         if "tf" in str(rit): # mi
             return ri * 60
         elif "hj" in str(rit): # se
