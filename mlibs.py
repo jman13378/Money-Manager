@@ -1,7 +1,9 @@
 import json
+from sched import scheduler
 
-from tkinter.messagebox import CANCEL, YESNO, askyesnocancel, showinfo, askyesno
+from tkinter.messagebox import CANCEL, YESNO, askquestion, askyesnocancel, showerror, showinfo, askyesno
 from tkinter import *
+from tkinter.simpledialog import askstring
 
 from PIL import Image, ImageTk
 
@@ -33,8 +35,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-generators.generator.regvars()
-generators.generator.get_dir()
+
 
 
 
@@ -61,7 +62,7 @@ f = open(path, 'r')
 data = json.loads(f.read())
 
 
-soundtype=1
+soundtype=0
 
 if soundtype==0:
     completesound = resource_path('complete.mp3')
@@ -89,7 +90,8 @@ bal = data["bal"]
 upgrades=data["upgrades"]
 balper= data["balper"]
 prestige=data['prestige']
-
+scheduler = BackgroundScheduler()
+scheduler.start()
 # Window icon parsing
 photo = ImageTk.PhotoImage(imageIcon)
 win.iconphoto(False, photo)
@@ -174,7 +176,6 @@ def prestigeup():
     bal = 0
     upgrades = 0
     balper = prestige + 1
-    ending()
     close()
 
 def reload_bal():
@@ -223,18 +224,43 @@ reload_bal()
 reload_upgrades()
 reload_upgrade_level()
 
+
+def addGen():
+    name = askstring("Gen Name!", "What would you like to name this generator!")
+    genid = generators.generator.totalgens
+    i=1
+    for x in range(generators.generator.totalgens):
+        if generators.generator.getGeneratorName(i) == name:
+            showerror("Gen Error", "Generator already exists")
+            return
+        elif name == "":
+            showerror("Gen Error", "Generator name is blank")
+            
+            return
+        else: i+=1
+    generators.generator.addGen((genid + 1),str(name),50,10,"tf")
+    scheduler.remove_all_jobs()
+    generators.generator.totalgens=0
+    getGenerators()
+    
+
+
 upgr = Button(win,text="  Upgrade  ", command=upgrade, bg="#0D1117", fg="green").grid(column=1, row=3)
 win.rowconfigure(5, weight=2)
 stats = Button(win,text="  Stats?  ", command=send_stat_msg, bg="#0D1117", fg="yellow").grid(column=0, row=5)
 
 addmoney = Button(win,text="  Add Money  ", command=addbal, bg="#0D1117", fg="blue").grid(column=1, row=0)
 win.columnconfigure(3, minsize=1, weight=1)
+
 reset = Button(win,text="  Reset  ", command=restart, bg="#0D1117", fg="red").grid(column=3, row=0)
 
+reset = Button(win,text="  Buy Gen  ", command=addGen, bg="#0D1117", fg="green").grid(column=2, row=5)
 
 
 win.protocol('WM_DELETE_WINDOW', close)
 def getGenerators():
+    generators.generator.regvars()
+    generators.generator.get_dir()
     i=1
     i2=1
     row=0
@@ -245,9 +271,8 @@ def getGenerators():
         time=generators.generator.getGeneratorInterval(i)
         baltoadd1= generators.generator.getGeneratorBalper(i)
         if baltoadd1:
-            scheduler = BackgroundScheduler()
             scheduler.add_job(lambda: genAddBal(baltoadd1), 'interval', seconds=time, id=genname)
-            scheduler.start()
+            generators.generator.totalgens +=1
             win.columnconfigure(5, minsize=1, weight=1)
             if (i2 == 9):
                 i2=1

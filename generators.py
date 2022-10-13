@@ -8,6 +8,8 @@ from tkinter.messagebox import CANCEL, YESNO, askyesnocancel, showinfo, askyesno
 from tkinter import *
 
 class generator():
+    totalgens=0
+
     def regvars():
         global parent_dir, directory, file, path
         parent_dir = os.getenv('APPDATA')
@@ -30,12 +32,6 @@ class generator():
                 a.write(
                     '{\n'
                     +'  "generators": [{\n'
-                    +'      "1": {\n'
-                    +'          "name": "starter",\n'
-                    +'          "balper": 50,\n'
-                    +'          "interval": "1",\n'
-                    +'          "intervalType": "mi"\n'
-                    +'      }\n'
                     +'  }]'
                     +'\n}')
                 print(a.read)
@@ -63,10 +59,8 @@ class generator():
 
     def getGeneratorBalper(genid):
         return generators["{}".format(genid)]["balper"]
-
-
-    def close():
-        
+    def resetgens():
+            
         a = open(path, "w")
         sda = str(generators).replace("'","\"")
         a.write(
@@ -75,4 +69,36 @@ class generator():
             +']\n}')
         a.close()
         pass
-    
+    def close():
+        
+        a = open(path, "w")
+        sda = str(generators).replace("'","\"")
+        a.write(
+            '{\n'
+            +'  "generators": [{}'.format(sda)
+            +']\n}')
+        
+        a.close()
+        d = open(path, "r")
+        print(d.read())
+        pass
+    def addGen(genid,nam,balper,interval,intervalType):
+        a = open(path, "w")
+        sda = str(generators).replace("'","\"")
+        llol = str(
+            '"{}"'.format(str(genid))
+            +':'
+            + '{'+'"name": "{}"'.format(str(nam))
+            +', "balper":'
+            + format(str(balper))
+            +', "interval":' +str(interval)
+            +', "intervalType": "{}"'.format(str(intervalType))+"}}").replace("'","\"")
+        a.write(
+            '{\n'
+            +'  "generators": [{},{}'.format(sda[:-1],llol)
+            +']\n}')
+        
+        a.close()
+        d = open(path, "r")
+        print(d.read())
+        pass
