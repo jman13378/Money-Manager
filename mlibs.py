@@ -1,7 +1,9 @@
 import json
+from sched import scheduler
 
-from tkinter.messagebox import CANCEL, YESNO, askyesnocancel, showinfo, askyesno
+from tkinter.messagebox import CANCEL, YESNO, askquestion, askyesnocancel, showerror, showinfo, askyesno
 from tkinter import *
+from tkinter.simpledialog import askstring
 
 from PIL import Image, ImageTk
 
@@ -33,8 +35,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-generators.generator.regvars()
-generators.generator.get_dir()
+
 
 
 
@@ -61,7 +62,7 @@ f = open(path, 'r')
 data = json.loads(f.read())
 
 
-soundtype=1
+soundtype=0
 
 if soundtype==0:
     completesound = resource_path('complete.mp3')
@@ -74,22 +75,23 @@ elif soundtype==1:
 
 
 win=Tk()
-win.geometry("350x350")
+win.geometry("750x350")
 win.grid()
 win.config(bg="#2C2F33")
 win.title("Money Manager")
 
-win.rowconfigure(5, weight=1)
-win.rowconfigure(5, weight=10)
-win.columnconfigure(5, weight=1)
-win.columnconfigure(5, weight=10)
+win.rowconfigure(4, weight=1)
+win.rowconfigure(4, weight=10)
+win.columnconfigure(4, weight=1)
+win.columnconfigure(4, weight=10)
 
 lel11= 0
 bal = data["bal"]
 upgrades=data["upgrades"]
 balper= data["balper"]
 prestige=data['prestige']
-
+scheduler = BackgroundScheduler()
+scheduler.start()
 # Window icon parsing
 photo = ImageTk.PhotoImage(imageIcon)
 win.iconphoto(False, photo)
@@ -100,8 +102,8 @@ def send_stat_msg():
     +'Level: {}\n'.format(upgrades)
     +'MPC: {}\n'.format(balper)
     +'Balance: {}\n'.format(bal)
-    +'Next Upgrade Price: {}\n'.format((upgrades + 1) * 100 + 50 * getPrestige())
-    +'Current Upgrade Price: {}'.format(upgrades * 100 + 50 * getPrestige())
+    +'Next Upgrade Price: {}\n'.format((upgrades + 1) * 100 + 50 * getPrestige(0))
+    +'Current Upgrade Price: {}'.format(upgrades * 100 + 50 * getPrestige(0))
     )
 def addbal():
     global bal
@@ -132,25 +134,28 @@ def ending():
         
         pass
 
-def getPrestige():
+def getPrestige(l):
     global prestige
-    if prestige == 0:
+    if prestige == 0 and l == 1:
         return 1
+    elif l== 0 and prestige==0:
+        return 0
     else:
         return prestige
 
 def upgrade():
     global bal, balper, upgrades, prestige
-    if bal >= upgrades * 100 + 50 * getPrestige():
-        cost = upgrades * 100 + 50 * getPrestige()
-        bal -= upgrades * 100 + 50 * getPrestige()
+    if bal >= upgrades * 100 + 50 * getPrestige(1):
+        cost = upgrades * 100 + 50 * getPrestige(1)
+        bal -= upgrades * 100 + 50 * getPrestige(1)
         upgrades += 1
-        balper += (1 + getPrestige())
+        balper += (1 + getPrestige(0))
         
         
-        if upgrades >= (20 + (10 * getPrestige())):
+        if upgrades >= (20 + (10 * getPrestige(0))):
             prestigeup()
-        elif (upgrades == (20 + (10 * getPrestige()))):
+            return
+        elif (upgrades == (20 + (10 * getPrestige(0)))):
             lel11 = 1
             ending()
             return
@@ -159,11 +164,11 @@ def upgrade():
         reload_upgrades()
         reload_upgrade_level()
         playsound(completesound)
-        showinfo("Upgraded!", "You have upgraded your MPC(Money per click)\nUpgrade: {}\nCost: {}\nRemaining Bal: {}\nNext Cost: {}".format(upgrades, cost, bal, upgrades * 100 + 50 * getPrestige()) )
+        showinfo("Upgraded!", "You have upgraded your MPC(Money per click)\nUpgrade: {}\nCost: {}\nRemaining Bal: {}\nNext Cost: {}".format(upgrades, cost, bal, upgrades * 100 + 50 * getPrestige(0)) )
 
     else:
-        s = playsound(errorsound)
-        showinfo('Not Enought Money!', "Sorry, you doen't have enough money for this!\nCurrent Bal: {}\nNeeded: {}".format(bal, upgrades * 100 + 50 * getPrestige()))
+        playsound(errorsound)
+        showinfo('Not Enought Money!', "Sorry, you doen't have enough money for this!\nCurrent Bal: {}\nNeeded: {}".format(bal, upgrades * 100 + 50 * getPrestige(0)))
         
 def prestigeup():
     global bal, balper, upgrades, prestige, lel11
@@ -178,7 +183,7 @@ def reload_bal():
     balance = Label( win, text="Money: ${}".format(bal), bg="#0D1117", fg="green").grid(column=0,row=0)
 
 def reload_upgrades():
-    upgr = Label( win, text="Upgrade Price: ${}".format(upgrades * 100 + 50 * getPrestige()), bg="#0D1117", fg="white").grid(column=0,row=2)
+    upgr = Label( win, text="Upgrade Price: ${}".format(upgrades * 100 + 50 * getPrestige(0)), bg="#0D1117", fg="white").grid(column=0,row=2)
 
 def reload_upgrade_level():
     global upgrades
@@ -201,7 +206,7 @@ def close():
         +'  "prestige": {}'.format(prestige)
         +'\n}')
     a.close()
-    #generators.generator.close()
+    generators.generator.close()
     win.destroy()
 
 def restart():
@@ -219,26 +224,72 @@ reload_bal()
 reload_upgrades()
 reload_upgrade_level()
 
+
+def addGen():
+    name = askstring("Gen Name!", "What would you like to name this generator!")
+    genid = generators.generator.totalgens
+    i=1
+    for x in range(generators.generator.totalgens):
+        if generators.generator.getGeneratorName(i) == name:
+            showerror("Gen Error", "Generator already exists")
+            return
+        elif name == "":
+            showerror("Gen Error", "Generator name is blank")
+            
+            return
+        else: i+=1
+    generators.generator.addGen((genid + 1),str(name),50,10,"tf")
+    scheduler.remove_all_jobs()
+    generators.generator.totalgens=0
+    getGenerators()
+    
+
+
 upgr = Button(win,text="  Upgrade  ", command=upgrade, bg="#0D1117", fg="green").grid(column=1, row=3)
 win.rowconfigure(5, weight=2)
 stats = Button(win,text="  Stats?  ", command=send_stat_msg, bg="#0D1117", fg="yellow").grid(column=0, row=5)
 
 addmoney = Button(win,text="  Add Money  ", command=addbal, bg="#0D1117", fg="blue").grid(column=1, row=0)
+win.columnconfigure(3, minsize=1, weight=1)
 
-reset = Button(win,text="  Reset  ", command=restart, bg="#0D1117", fg="red").grid(column=5, row=0)
+reset = Button(win,text="  Reset  ", command=restart, bg="#0D1117", fg="red").grid(column=3, row=0)
 
+reset = Button(win,text="  Buy Gen  ", command=addGen, bg="#0D1117", fg="green").grid(column=2, row=5)
 
 
 win.protocol('WM_DELETE_WINDOW', close)
+def getGenerators():
+    generators.generator.regvars()
+    generators.generator.get_dir()
+    i=1
+    i2=1
+    row=0
+    for x in generators.generators:
+        
+        print(i)
+        genname=generators.generator.getGeneratorName(i)
+        time=generators.generator.getGeneratorInterval(i)
+        baltoadd1= generators.generator.getGeneratorBalper(i)
+        if baltoadd1:
+            scheduler.add_job(lambda: genAddBal(baltoadd1), 'interval', seconds=time, id=genname)
+            generators.generator.totalgens +=1
+            win.columnconfigure(5, minsize=1, weight=1)
+            if (i2 == 9):
+                i2=1
+                row+=2
+            lel = Label(win,text="+${}/{}".format(baltoadd1, time), bg="#0D1117", fg="green").grid(column=4+i2,row=row)
+            lol = Button(win,text="Upgrade", command=restart, bg="#0D1117", fg="red").grid(column=4+i2, row=1+row)
 
+        else:
+            print("generator error due to incorrect type formatting")
+        i+=1
+        i2+=1
+    
 
 def genAddBal(baltoadd):
+    global bal
     bal += baltoadd
+    reload_bal()
     return
-
-def start_gen_jobs(genname,time,baltoadd):
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(id=genname, trigger=lambda: genAddBal(baltoadd), next_run_time='interval', seconds=time)
-    scheduler.start()
-generators.generator.getGenerators()
+getGenerators()
 win.mainloop()

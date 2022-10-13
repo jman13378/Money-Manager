@@ -8,6 +8,8 @@ from tkinter.messagebox import CANCEL, YESNO, askyesnocancel, showinfo, askyesno
 from tkinter import *
 
 class generator():
+    totalgens=0
+
     def regvars():
         global parent_dir, directory, file, path
         parent_dir = os.getenv('APPDATA')
@@ -23,24 +25,18 @@ class generator():
         if not dir_exists:
             os.mkdir(path)
 
-        pth = os.path.join(path,file)
+        path = os.path.join(path,file)
 
-        if not os.path.exists(pth):
+        if not os.path.exists(path):
             with open(path, 'x') as a:
                 a.write(
                     '{\n'
                     +'  "generators": [{\n'
-                    +'      "1": {\n'
-                    +'          "name": "starter",\n'
-                    +'          "balper": 50,\n'
-                    +'          "interval": "1",\n'
-                    +'          "intervalType": "mi"\n'
-                    +'      }\n'
                     +'  }]'
                     +'\n}')
                 print(a.read)
                 a.close()
-        f= open(pth, 'r') 
+        f= open(path, 'r') 
         rip = json.loads(f.read())
         generators = rip["generators"][0]
         f.close()
@@ -49,6 +45,7 @@ class generator():
     def getGeneratorInterval(genid):
         ri = generators["{}".format(genid)]["interval"]
         rit = generators["{}".format(genid)]["intervalType"]
+        print(str(rit) + "  " + str(ri))
         if "tf" in str(rit): # mi
             return ri * 60
         elif "hj" in str(rit): # se
@@ -62,34 +59,46 @@ class generator():
 
     def getGeneratorBalper(genid):
         return generators["{}".format(genid)]["balper"]
-
-    def getGenerators():
-        i=1
-        for x in generators:
+    def resetgens():
             
-            print(i)
-            genname=generator.getGeneratorName(i)
-            time=generator.getGeneratorInterval(i)
-            baltoadd= generator.getGeneratorBalper(i)
-            if baltoadd:
-                generator.registerGenerators(genname,time,baltoadd)
-                print("generator error due to incorrect type formatting")
-            i+=1
-            
-
-    def registerGenerators(genname,time,baltoadd):
-        import mlibs
-
-        mlibs.start_gen_jobs(genname,time,baltoadd)
-    def close():
-        
-        pth = os.path.join(path,file)
-        a = open(pth, "w")
+        a = open(path, "w")
         sda = str(generators).replace("'","\"")
         a.write(
             '{\n'
-            +'  "generators": [%'.format()
+            +'  "generators": [{}'.format(sda)
             +']\n}')
         a.close()
         pass
-    
+    def close():
+        
+        a = open(path, "w")
+        sda = str(generators).replace("'","\"")
+        a.write(
+            '{\n'
+            +'  "generators": [{}'.format(sda)
+            +']\n}')
+        
+        a.close()
+        d = open(path, "r")
+        print(d.read())
+        pass
+    def addGen(genid,nam,balper,interval,intervalType):
+        a = open(path, "w")
+        sda = str(generators).replace("'","\"")
+        llol = str(
+            '"{}"'.format(str(genid))
+            +':'
+            + '{'+'"name": "{}"'.format(str(nam))
+            +', "balper":'
+            + format(str(balper))
+            +', "interval":' +str(interval)
+            +', "intervalType": "{}"'.format(str(intervalType))+"}}").replace("'","\"")
+        a.write(
+            '{\n'
+            +'  "generators": [{},{}'.format(sda[:-1],llol)
+            +']\n}')
+        
+        a.close()
+        d = open(path, "r")
+        print(d.read())
+        pass
