@@ -80,8 +80,8 @@ win.grid()
 win.config(bg="#2C2F33")
 win.title("Money Manager")
 
+win.rowconfigure(4, weight=0)
 win.rowconfigure(4, weight=1)
-win.rowconfigure(4, weight=10)
 win.columnconfigure(4, weight=1)
 win.columnconfigure(4, weight=10)
 
@@ -142,7 +142,40 @@ def getPrestige(l):
         return 0
     else:
         return prestige
+def getGenerators():
+    generators.generator.regvars()
+    generators.generator.get_dir()
+    i=1
+    i2=1
+    row=0
+    for x in generators.generators:
+        
+        print(i)
+        genname=generators.generator.getGeneratorName(i)
+        time=generators.generator.getGeneratorInterval(i)
+        baltoadd1= generators.generator.getGeneratorBalper(i)
+        if baltoadd1:
+            scheduler.add_job(lambda: genAddBal(baltoadd1), 'interval', seconds=time, id=genname)
+            generators.generator.totalgens +=1
+            win.columnconfigure(5, minsize=1, weight=1)
+            if (i2 == 9):
+                i2=1
+                row+=2
+            lel = Label(win,text="+${}/{}".format(baltoadd1, time), bg="#0D1117", fg="green").grid(column=4+i2,row=row)
+            lol = Button(win,text="Upgrade", command=lambda: generators.generator.upgradegen(genname), bg="#0D1117", fg="red").grid(column=4+i2, row=1+row)
 
+        else:
+            print("generator error due to incorrect type formatting")
+        i+=1
+        i2+=1
+    
+
+def genAddBal(baltoadd):
+    global bal
+    bal += baltoadd
+    reload_bal()
+    return
+getGenerators()
 def upgrade():
     global bal, balper, upgrades, prestige
     if bal >= upgrades * 100 + 50 * getPrestige(1):
@@ -178,12 +211,17 @@ def prestigeup():
     balper = prestige + 1
     close()
 
+#reloads
+def reload_buygen():
+    needed = generators.generator.totalgens * (200*getPrestige(1))
+    genpri = Label(win, text="Gen Price: ${}".format(needed), bg="#0D1117", fg="green").grid(column=0,row=4)
+
 def reload_bal():
     global bal
     balance = Label( win, text="Money: ${}".format(bal), bg="#0D1117", fg="green").grid(column=0,row=0)
 
 def reload_upgrades():
-    upgr = Label( win, text="Upgrade Price: ${}".format(upgrades * 100 + 50 * getPrestige(0)), bg="#0D1117", fg="white").grid(column=0,row=2)
+    upgr = Label( win, text="Upgrade Price: ${}".format(upgrades * 100 + 50 * getPrestige(1)), bg="#0D1117", fg="white").grid(column=0,row=2)
 
 def reload_upgrade_level():
     global upgrades
@@ -220,12 +258,16 @@ def restart():
         close()
     else:
         pass
+reload_buygen()
 reload_bal()
 reload_upgrades()
 reload_upgrade_level()
 
 
 def addGen():
+    needed = generators.generator.totalgens * (200*getPrestige(0))
+    if bal < needed:
+        showerror("Invalid Balance!", "You only have ${} and you need {}!\nPlease get ${} to buy a generator!".format(bal,needed,(needed-bal)))
     name = askstring("Gen Name!", "What would you like to name this generator!")
     genid = generators.generator.totalgens
     i=1
@@ -242,11 +284,18 @@ def addGen():
     scheduler.remove_all_jobs()
     generators.generator.totalgens=0
     getGenerators()
-    
-
+    reload_buygen()
+def focused():
+    if win.focus_displayof() is None:
+        scheduler.pause
+        print("ll")
+    else:
+        scheduler.resume
+win.after(200,focused)
+win.resizable(False,False)
 
 upgr = Button(win,text="  Upgrade  ", command=upgrade, bg="#0D1117", fg="green").grid(column=1, row=3)
-win.rowconfigure(5, weight=2)
+win.rowconfigure(5, weight=1)
 stats = Button(win,text="  Stats?  ", command=send_stat_msg, bg="#0D1117", fg="yellow").grid(column=0, row=5)
 
 addmoney = Button(win,text="  Add Money  ", command=addbal, bg="#0D1117", fg="blue").grid(column=1, row=0)
@@ -254,42 +303,9 @@ win.columnconfigure(3, minsize=1, weight=1)
 
 reset = Button(win,text="  Reset  ", command=restart, bg="#0D1117", fg="red").grid(column=3, row=0)
 
-reset = Button(win,text="  Buy Gen  ", command=addGen, bg="#0D1117", fg="green").grid(column=2, row=5)
+reset = Button(win,text="  Buy Gen  ", command=addGen, bg="#0D1117", fg="green").grid(column=1, row=4)
 
 
 win.protocol('WM_DELETE_WINDOW', close)
-def getGenerators():
-    generators.generator.regvars()
-    generators.generator.get_dir()
-    i=1
-    i2=1
-    row=0
-    for x in generators.generators:
-        
-        print(i)
-        genname=generators.generator.getGeneratorName(i)
-        time=generators.generator.getGeneratorInterval(i)
-        baltoadd1= generators.generator.getGeneratorBalper(i)
-        if baltoadd1:
-            scheduler.add_job(lambda: genAddBal(baltoadd1), 'interval', seconds=time, id=genname)
-            generators.generator.totalgens +=1
-            win.columnconfigure(5, minsize=1, weight=1)
-            if (i2 == 9):
-                i2=1
-                row+=2
-            lel = Label(win,text="+${}/{}".format(baltoadd1, time), bg="#0D1117", fg="green").grid(column=4+i2,row=row)
-            lol = Button(win,text="Upgrade", command=restart, bg="#0D1117", fg="red").grid(column=4+i2, row=1+row)
 
-        else:
-            print("generator error due to incorrect type formatting")
-        i+=1
-        i2+=1
-    
-
-def genAddBal(baltoadd):
-    global bal
-    bal += baltoadd
-    reload_bal()
-    return
-getGenerators()
 win.mainloop()

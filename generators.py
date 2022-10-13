@@ -102,3 +102,13 @@ class generator():
         d = open(path, "r")
         print(d.read())
         pass
+    def upgradegen(i1):
+        generators["{}".format(str(i))]
+        print(generator.getGeneratorName(i))
+        i = 1
+        for x in generators:
+            if i1 is generator.getGeneratorName(i):
+                pass
+            else: pass
+
+
