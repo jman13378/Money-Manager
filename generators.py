@@ -8,10 +8,10 @@ from tkinter.messagebox import CANCEL, YESNO, askyesnocancel, showinfo, askyesno
 from tkinter import *
 
 class generator():
-    totalgens=0
-
+    
     def regvars():
-        global parent_dir, directory, file, path
+        global parent_dir, directory, file, path, totalgens
+        totalgens=0
         parent_dir = os.getenv('APPDATA')
         directory = "Money-Manager"
         file = "generators-data.json"
@@ -54,11 +54,16 @@ class generator():
             return ri * 3600
         else:
             return False
+    def getGenUpgrade(genid):
+        return generators["{}".format(genid)]["upgrade"]
     def getGeneratorName(genid):
         return generators["{}".format(genid)]["name"]
 
     def getGeneratorBalper(genid):
-        return generators["{}".format(genid)]["balper"]
+        up = generator.getGeneratorUpgrade(genid)
+        if up == 0: up=1
+        balper = 50 * up
+        return balper
     def resetgens():
             
         a = open(path, "w")
@@ -82,32 +87,32 @@ class generator():
         d = open(path, "r")
         print(d.read())
         pass
-    def addGen(genid,nam,balper,interval,intervalType):
+    def addGen(genid,nam,balper):
         a = open(path, "w")
         sda = str(generators).replace("'","\"")
         llol = str(
             '"{}"'.format(str(genid))
             +':'
             + '{'+'"name": "{}"'.format(str(nam))
-            +', "balper":'
-            + format(str(balper))
-            +', "interval":' +str(interval)
-            +', "intervalType": "{}"'.format(str(intervalType))+"}}").replace("'","\"")
+            +', "upgrade": 0'"}}").replace("'","\"")
+        if totalgens == 0:
+            fe = ""
+        else:
+            fe =","
         a.write(
             '{\n'
-            +'  "generators": [{},{}'.format(sda[:-1],llol)
-            +']\n}')
+            +'  "generators": [{}{}{}'.format(sda[:-1],fe,llol)
+            +']\n}')## 1{}: the original gens, 2{}: a comma if gens is > 0, 3{}: the new one 1 add
         
         a.close()
         d = open(path, "r")
         print(d.read())
         pass
     def upgradegen(i1):
-        generators["{}".format(str(i))]
-        print(generator.getGeneratorName(i))
         i = 1
         for x in generators:
             if i1 is generator.getGeneratorName(i):
+                generators["{}".format(i)]["upgrades"]
                 pass
             else: pass
 
