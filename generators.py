@@ -6,12 +6,12 @@ import json
 from PIL import Image, ImageTk
 from tkinter.messagebox import CANCEL, YESNO, askyesnocancel, showinfo, askyesno
 from tkinter import *
+totalgens=0
 
 class generator():
     
     def regvars():
-        global parent_dir, directory, file, path, totalgens
-        totalgens=0
+        global parent_dir, directory, file, path
         parent_dir = os.getenv('APPDATA')
         directory = "Money-Manager"
         file = "generators-data.json"
@@ -27,8 +27,10 @@ class generator():
 
         path = os.path.join(path,file)
 
-        if not os.path.exists(path):
-            with open(path, 'x') as a:
+        if not os.path.exists(path) or os.path.getsize(path)==0:
+            if os.path.getsize(path)==0: s="w"
+            else: s="x"
+            with open(path, s) as a:
                 a.write(
                     '{\n'
                     +'  "generators": [{\n'
@@ -60,7 +62,7 @@ class generator():
         return generators["{}".format(genid)]["name"]
 
     def getGeneratorBalper(genid):
-        up = generator.getGeneratorUpgrade(genid)
+        up = generator.getGenUpgrade(genid)
         if up == 0: up=1
         balper = 50 * up
         return balper
@@ -87,14 +89,19 @@ class generator():
         d = open(path, "r")
         print(d.read())
         pass
-    def addGen(genid,nam,balper):
+    def addGen(genid,nam,balper,interval,intervalType):
         a = open(path, "w")
         sda = str(generators).replace("'","\"")
         llol = str(
             '"{}"'.format(str(genid))
             +':'
             + '{'+'"name": "{}"'.format(str(nam))
-            +', "upgrade": 0'"}}").replace("'","\"")
+            +', "upgrade": 0'
+            + ', "interval": {}'.format(interval)
+            + ', "intervalType": "{}"'.format(intervalType)
+            + '}}'
+            ).replace("'","\"")
+            
         if totalgens == 0:
             fe = ""
         else:

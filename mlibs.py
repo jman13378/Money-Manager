@@ -156,7 +156,7 @@ def getGenerators():
         baltoadd1= generators.generator.getGeneratorBalper(i)
         if baltoadd1:
             scheduler.add_job(lambda: genAddBal(baltoadd1), 'interval', seconds=time, id=genname)
-            generators.generator.totalgens +=1
+            generators.totalgens +=1
             win.columnconfigure(5, minsize=1, weight=1)
             if (i2 == 9):
                 i2=1
@@ -210,10 +210,13 @@ def prestigeup():
     upgrades = 0
     balper = prestige + 1
     close()
-
+def format(y):
+    if y==0:
+        return 1
+    else: return y
 #reloads
 def reload_buygen():
-    needed = generators.generator.totalgens * (200*getPrestige(1))
+    needed = format(generators.totalgens) * (200*getPrestige(1))
     genpri = Label(win, text="Gen Price: ${}".format(needed), bg="#0D1117", fg="green").grid(column=0,row=4)
 
 def reload_bal():
@@ -265,13 +268,13 @@ reload_upgrade_level()
 
 
 def addGen():
-    needed = generators.generator.totalgens * (200*getPrestige(0))
+    needed = generators.totalgens * (200*getPrestige(0))
     if bal < needed:
         showerror("Invalid Balance!", "You only have ${} and you need {}!\nPlease get ${} to buy a generator!".format(bal,needed,(needed-bal)))
     name = askstring("Gen Name!", "What would you like to name this generator!")
-    genid = generators.generator.totalgens
+    genid = generators.totalgens
     i=1
-    for x in range(generators.generator.totalgens):
+    for x in range(generators.totalgens):
         if generators.generator.getGeneratorName(i) == name:
             showerror("Gen Error", "Generator already exists")
             return
@@ -282,7 +285,7 @@ def addGen():
         else: i+=1
     generators.generator.addGen((genid + 1),str(name),50,10,"tf")
     scheduler.remove_all_jobs()
-    generators.generator.totalgens=0
+    generators.totalgens=0
     getGenerators()
     reload_buygen()
 def focused():
