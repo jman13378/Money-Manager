@@ -31,12 +31,13 @@ StringFileInfo(
     u'040904B0',
     [
         StringStruct(u'CompanyName', u'Apache Software Foundation'),
-        StringStruct(u'FileDescription', u'svn'),
-        StringStruct(u'FileVersion', u'1.9.7'),
-        StringStruct(u'InternalName', u'SVN'),
+        StringStruct(u'FileDescription', u'A Goofy Ah Game'),
+        StringStruct(u'FileVersion', u'1.0.1'),
+        StringStruct(u'InternalName', u'Money Manager'),
+        StringStruct(u'Copyright', u'Sokobot'),
         StringStruct(u'OriginalFilename', u'Money Manager.exe'),
         StringStruct(u'ProductName', u'Money Manager'),
-        StringStruct(u'ProductVersion', u'1.9.7 (r1800392)')])
+        StringStruct(u'ProductVersion', u'1.0.1')])
   ]), 
 VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
   ]
